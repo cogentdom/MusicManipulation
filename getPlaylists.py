@@ -1,6 +1,5 @@
 import sys
 import spotipy
-import json
 from spotipy.oauth2 import SpotifyClientCredentials
 
 client_credentials_manager = SpotifyClientCredentials()
