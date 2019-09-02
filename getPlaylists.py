@@ -22,27 +22,26 @@ playlist_id = uri.split(':')[4]
 results = sp.user_playlist(username, playlist_id)
 results = results['tracks']['items']
 # print(results[0].keys())
-playlist = {}
+playlist_art = {}
+playlist_uri = {}
+uri_list = list()
 for track in results:
     art = list()
     for artist in track['track']['artists']:
         art.append(artist['name'])
-    playlist.update({track['track']['name'] : art})
-print(playlist)
+    playlist_art.update({track['track']['name'] : art})
+    playlist_uri.update({track['track']['name'] : track['track']['uri']})
+    uri_list.append(track['track']['uri'])
+
+# Audio analysis Doc
+# https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-analysis/#rhythm
+analyze = sp.audio_analysis(playlist_uri['Loyal']) # dict_keys(['meta', 'track', 'bars', 'beats', 'tatums', 'sections', 'segments'])
+analyze = analyze['bars']
+# print(analyze)
+# print(analyze.keys())
 
 
-# trackz = results['tracks']['items'][0]['track']
-# print (results['tracks'])
-# for track in results['tracks']['items'][0]['track']:
-#     print('\n********\n' + track.get('name'))
-
-
-# playlists = sp.user_playlists(user)
-#
-# while playlists:
-#     for i, playlist in enumerate(playlists['items']):
-#         print("%4d %s %s" % (i + 1 + playlists['offset'], playlist['uri'],  playlist['name']))
-#     if playlists['next']:
-#         playlists = sp.next(playlists)
-#     else:
-#         playlists = None
+# Audio Features
+# https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/
+analy = sp.audio_features(uri_list[0])
+print(analy)
