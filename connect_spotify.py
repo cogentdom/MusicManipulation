@@ -12,6 +12,7 @@ client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
+
 username = uri_playL_list[0].split(':')[2]
 
 playlist_art = {}
