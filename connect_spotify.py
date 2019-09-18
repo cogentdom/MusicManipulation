@@ -1,37 +1,42 @@
 import spotipy
+import redis
 from spotipy.oauth2 import SpotifyClientCredentials
 
 client_id = '5572530ac0664df2b34373f3f41db89b'
 client_secret = '15734ca0cac44e3c8ee4cc238bc895cf'
-uri = 'spotify:user:22okarqslvrgo5yvlkkfvr64a:playlist:37i9dQZF1DXdgz8ZB7c2CP'
+uri_playL_list = ['spotify:user:22okarqslvrgo5yvlkkfvr64a:playlist:37i9dQZF1DXdgz8ZB7c2CP', 'spotify:user:22okarqslvrgo5yvlkkfvr64a:playlist:6tJ0eB80eKJtFDvK3pJ7H3',
+                  'spotify:user:22okarqslvrgo5yvlkkfvr64a:playlist:17resVfiqMumDlv5Ffmts6', 'spotify:user:22okarqslvrgo5yvlkkfvr64a:playlist:4WRdMMQSDWPqkBlrt7iERG']
 # uri = 'spotify:user:22okarqslvrgo5yvlkkfvr64a:playlist:2q1iIfQJgOkHumhCQg4Hrg'
 
 client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
-# if len(sys.argv) > 1:
-#     user = sys.argv[1]
 
+username = uri_playL_list[0].split(':')[2]
 
-
-username = uri.split(':')[2]
-playlist_id = uri.split(':')[4]
-
-results = sp.user_playlist(username, playlist_id)
-results = results['tracks']['items']
-# print(results[0].keys())
 playlist_art = {}
 playlist_uri = {}
-uri_list = list()
-for track in results:
-    art = list()
-    for artist in track['track']['artists']:
-        art.append(artist['name'])
-    playlist_art.update({track['track']['name'] : art})
-    playlist_uri.update({track['track']['name'] : track['track']['uri']})
-    uri_list.append(track['track']['uri'])
-    # print(track['track']['name'], art)
+playid = 5
 
-song = sp.track('https://open.spotify.com/track/20DInrAonQILzH7q8CvNVF')
-print(song['album']['images'])
+track_uri_list = list()
+playlist_uri_list = list()
+for uri in uri_playL_list:
+    playlist_uri_list.append(uri)
+    results = sp.user_playlist(username, uri)
+    results = results['tracks']['items']
+    for track in results:
+        track_uri_list.append(track['track']['uri'])
+
+r = redis.Redis(host='localhost', port=6379)
+r.flushdb()
+pipe = r.pipeline()
+for play_val in playlist_uri_list:
+    # for track_val in track_uri_list:
+    pipe.hset(username, play_val, str(track_uri_list))
+pipe.execute()
+
+print(r.hkeys(username))
+print(r.dbsize())
+print(r.hkeys('22okarqslvrgo5yvlkkfvr64a'))
+print(r.dbsize())
