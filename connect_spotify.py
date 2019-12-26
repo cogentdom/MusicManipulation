@@ -27,7 +27,10 @@ for uri in uri_playL_list:
     results = results['tracks']['items']
     for track in results:
         track_uri_list.append(track['track']['uri'])
-
+        art = list()
+        for artist in track['track']['artists']:
+            art.append(artist['name'])
+        print(track['track']['name'][:12], '\t\t\t', art, '\n')
 r = redis.Redis(host='localhost', port=6379)
 r.flushdb()
 pipe = r.pipeline()
